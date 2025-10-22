@@ -1,0 +1,1292 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="page-body animate-fade-in" data-product-slug="{{ product.slug }}">
+    <!-- Back Button -->
+    <button onclick="window.history.back();" class="ir-back-btn">
+        <svg class="ir-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Back to Store</span>
+    </button>
+    
+    <div class="product-page grid grid-cols-1 lg:grid-cols-12 gap-6 animate-scale-in {% if product.name == "Champion" %}champion-product-page{% elseif product.name == "Legend" %}legend-product-page{% endif %}">
+        <div class="product-page-image flex items-center justify-center col-span-1 lg:col-span-5">
+            {% if product.image_url %}
+            <img class="product-img" alt="{{ product.name }}" src="{{ product.image_url }}" />
+            {% else %}
+            <i class="fa-solid fa-box-open text-gray-900 text-9xl"></i>
+            {% endif %}
+        </div>
+        <div class="product-page-details col-span-1 lg:col-span-7">
+            <div class="product-details-top">
+                <div class="product-stock-out">
+                    {% if product.stock.available_to_purchase == false %}
+                    <span class="!text-red-400 !font-bold !text-2xl">
+                        OUT OF STOCK
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    <div class="flex flex-col product-name">
+                        {{ product.name }}
+                        {% if product.label %}
+                        <span>{{ product.label }}</span>
+                        {% endif %}
+                        {% if product.pricing.active_sale %}
+                        <span class="!text-[--main-color]">{{ product.pricing.active_sale.name }}</span>
+                        {% endif %}
+
+                        {% if product.pricing.vat_rate %}
+                        <span class="!text-sm">Including {{ product.pricing.vat_rate.percentage }}% {{ product.pricing.vat_rate.vat_abbreviation }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-price">
+                        {% if product.pricing.active_sale %}
+                        <h3 class="line-through text-red-400">{{ product.pricing.price_original|money }} {{ store.currency }}</h3>
+                        {% endif %}
+
+                        {% if product.price == 0.00 %}
+                        <h3>Free</h3>
+                        {% else %}
+                        <h3>{{ product.price|money }} {{ store.currency }}</h3>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Timer Indicators (only show for ranks) -->
+            {% if product.name in ['Soldier', 'Hero', 'Titan', 'Legend', 'Champion'] %}
+            <div class="ir-timer-indicators">
+                <div class="ir-timer-badge">
+                    <svg class="ir-timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="ir-timer-label">Wipe Block Timer:</span>
+                    <span class="ir-timer-value">4 Hours</span>
+                </div>
+                <div class="ir-timer-badge">
+                    <svg class="ir-timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="ir-timer-label">Claim Cooldown:</span>
+                    <span class="ir-timer-value">36 Hours</span>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="product-bot mt-4">
+                <div class="product-small-description">
+
+                    {% if product.single_game_server_only %}
+                    <div class="small-title">
+                        <i class="fa-solid fa-server text-[--main-color]"></i>
+                        <span class="min-w-[140px] ml-1">Game Server</span>
+                        <span class="product-det-border"></span>
+                    </div>
+                
+                    <div class="mt-2 mb-4">
+                        <select id="gameServerDropdown" name="gameServer" class="form-select block w-full pl-3 pr-10 py-2 text-base bg-[--panel-body] border border-[--border-color] sm:text-sm rounded-md shadow-md">
+                            {% for gameServer in product.gameservers %}
+                                <option value="{{ gameServer.id }}">{{ gameServer.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    {% for custom_variable in product.custom_variables %}
+                    <div class="small-title">
+                        <i class="fa-solid fa-gear text-[--main-color]"></i>
+                        <span class="min-w-[140px] ml-1">{{ custom_variable.name }}</span>
+                        <span class="product-det-border"></span>
+                    </div>
+                
+                    <div class="mt-2 mb-4">
+                        {% if custom_variable.type == "dropdown" %}
+                            <select id="customVariables[{{ custom_variable.identifier }}]" name="{{ custom_variable.identifier }}" class="form-select block w-full pl-3 pr-10 py-2 text-base bg-[--panel-body] border border-[--border-color] sm:text-sm rounded-md shadow-md">
+                                {% for option in custom_variable.options %}
+                                    <option value="{{ option.value }}">{{ option.name }}</option>
+                                {% endfor %}
+                            </select>
+                        {% else %}
+                            <input type="{{ custom_variable.type }}" pattern="{{ custom_variable.value_regex }}" required id="customVariables[{{ custom_variable.identifier }}]" name="{{ custom_variable.identifier }}" placeholder="{{ custom_variable.description }}" class="form-select block w-full placeholder:opacity-50 pl-3 pr-10 py-2 text-base bg-[--panel-body] border border-[--border-color] sm:text-sm rounded-md shadow-md" />
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+            <div class="product-buttons mt-4">
+                <div class="mt-4">
+                    {% if product.stock.available_to_purchase == false %}
+                    <span class="!text-red-400 !font-bold !text-2xl">
+                        OUT OF STOCK
+                    </span>
+                    {% else %}
+                    <div id="mainActions" class="mt-2 flex gap-2 flex-wrap">
+                        {% if product.trial.eligible %}
+                            <button onclick="subscribeToProduct(true);" class="ir-subscribe-btn">
+                                <svg class="ir-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                                </svg>
+                                <span>{{ product.trial.period_value }}-{{ product.trial.period_scale }} Free Trial</span>
+                            </button>
+                        {% endif %}
+                        {% if product.allow_subscription %}
+                            <button onclick="subscribeToProduct();" class="ir-subscribe-btn">
+                                <svg class="ir-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                                </svg>
+                                <span>Subscribe</span>
+                            </button>
+                        {% endif %}
+                        {% if product.allow_one_time_purchase and not product.is_gifting_disabled %}
+                            <button id="giftButton" onclick="toggleGiftActions();" class="ir-gift-btn">
+                                <svg class="ir-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                                </svg>
+                                <span>Gift</span>
+                            </button>
+                        {% endif %}
+                    </div>
+
+                    <div id="giftActions" class="hidden mt-2 flex gap-2 flex-wrap">
+                        <input type="text" id="idInput" placeholder="Enter {{ auth_provider == 'steam' ? 'SteamID64' : auth_provider }}" class="border rounded px-3 py-2 bg-[--input] border-[--border-color] text-white flex-1 min-w-[200px]" style="border: 1px solid rgba(126, 20, 247, 0.3);">
+                        <button id="purchaseFromGift" onclick="handlePurchase('{{ auth_provider }}');" class="ir-gift-btn">
+                            <svg class="ir-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                            </svg>
+                            <span>Confirm Gift</span>
+                        </button>
+                        <button id="closeGift" onclick="toggleGiftActions();" class="close-gift">
+                            <svg class="ir-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span>Cancel</span>
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Kit Details Grids (Only show for specific products) -->
+    {% set showKitDetails = product.name in ['Soldier', 'Hero', 'Titan', 'Legend', 'Champion'] %}
+    {% if showKitDetails %}
+    <div class="kit-details-section mt-8">
+        <div class="kit-grids-wrapper">
+            <!-- Attire & Weapons Grid (LEFT) -->
+            <div class="kit-grid-container">
+                <h3 class="kit-grid-title">
+                    <i class="fa-solid fa-shield"></i>
+                    <span>Attire & Weapons</span>
+                </h3>
+                <div class="kit-grid">
+                    {% if product.name == 'Champion' %}
+                        <!-- LR-300 Assault Rifle -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/rifle.lr300.png" alt="LR-300 Assault Rifle">
+                            <div class="kit-item-attachments">
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.holosight.png" alt="Holosight">
+                                </div>
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.flashlight.png" alt="Weapon flashlight">
+                                </div>
+                            </div>
+                            <div class="kit-item-tooltip">LR-300 Assault Rifle</div>
+                        </div>
+                        <!-- MP5A4 -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/smg.mp5.png" alt="MP5A4">
+                            <div class="kit-item-attachments">
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.holosight.png" alt="Holosight">
+                                </div>
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.flashlight.png" alt="Weapon flashlight">
+                                </div>
+                            </div>
+                            <div class="kit-item-tooltip">MP5A4</div>
+                        </div>
+                        <!-- SKS -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/rifle.sks.png" alt="SKS">
+                            <div class="kit-item-attachments">
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.flashlight.png" alt="Weapon flashlight">
+                                </div>
+                            </div>
+                            <div class="kit-item-tooltip">SKS</div>
+                        </div>
+                        <!-- 5.56 Rifle Ammo -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/ammo.rifle.png" alt="5.56 Rifle Ammo">
+                            <span class="kit-item-quantity">256</span>
+                            <div class="kit-item-tooltip">5.56 Rifle Ammo</div>
+                        </div>
+                        <!-- Pistol Bullet -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/ammo.pistol.png" alt="Pistol Bullet">
+                            <span class="kit-item-quantity">256</span>
+                            <div class="kit-item-tooltip">Pistol Bullet</div>
+                        </div>
+                        <!-- Medical Syringe -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/syringe.medical.png" alt="Medical Syringe">
+                            <span class="kit-item-quantity">20</span>
+                            <div class="kit-item-tooltip">Medical Syringe</div>
+                        </div>
+                        <!-- Wooden Barricade Cover -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/barricade.wood.cover.png" alt="Wooden Barricade Cover">
+                            <span class="kit-item-quantity">20</span>
+                            <div class="kit-item-tooltip">Wooden Barricade Cover</div>
+                        </div>
+                        <!-- Large Medkit -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/largemedkit.png" alt="Large Medkit">
+                            <span class="kit-item-quantity">4</span>
+                            <div class="kit-item-tooltip">Large Medkit</div>
+                        </div>
+                        <!-- Metal Facemask -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.facemask.png" alt="Metal Facemask">
+                            <div class="kit-item-tooltip">Metal Facemask</div>
+                        </div>
+                        <!-- Metal Chest Plate -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.plate.torso.png" alt="Metal Chest Plate">
+                            <div class="kit-item-tooltip">Metal Chest Plate</div>
+                        </div>
+                        <!-- Hoodie -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/hoodie.png" alt="Hoodie">
+                            <div class="kit-item-tooltip">Hoodie</div>
+                        </div>
+                        <!-- Tactical Gloves -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/tactical.gloves.png" alt="Tactical Gloves">
+                            <div class="kit-item-tooltip">Tactical Gloves</div>
+                        </div>
+                        <!-- Road Sign Kilt -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/roadsign.kilt.png" alt="Road Sign Kilt">
+                            <div class="kit-item-tooltip">Road Sign Kilt</div>
+                        </div>
+                        <!-- Pants -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/pants.png" alt="Pants">
+                            <div class="kit-item-tooltip">Pants</div>
+                        </div>
+                        <!-- Boots -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/shoes.boots.png" alt="Boots">
+                            <div class="kit-item-tooltip">Boots</div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if product.name == 'Titan' %}
+                        <!-- MP5A4 -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/smg.mp5.png" alt="MP5A4">
+                            <div class="kit-item-attachments">
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.holosight.png" alt="Holosight">
+                                </div>
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.flashlight.png" alt="Weapon flashlight">
+                                </div>
+                            </div>
+                            <div class="kit-item-tooltip">MP5A4</div>
+                        </div>
+                        <!-- M39 Rifle -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/rifle.m39.png" alt="M39 Rifle">
+                            <div class="kit-item-attachments">
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.flashlight.png" alt="Weapon flashlight">
+                                </div>
+                            </div>
+                            <div class="kit-item-tooltip">M39 Rifle</div>
+                        </div>
+                        <!-- Semi Auto Rifle -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/rifle.semiauto.png" alt="Semi Automatic Rifle">
+                            <div class="kit-item-attachments">
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.flashlight.png" alt="Weapon flashlight">
+                                </div>
+                            </div>
+                            <div class="kit-item-tooltip">Semi Automatic Rifle</div>
+                        </div>
+                        <!-- 5.56 Rifle Ammo -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/ammo.rifle.png" alt="5.56 Rifle Ammo">
+                            <span class="kit-item-quantity">256</span>
+                            <div class="kit-item-tooltip">5.56 Rifle Ammo</div>
+                        </div>
+                        <!-- Pistol Bullet -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/ammo.pistol.png" alt="Pistol Bullet">
+                            <span class="kit-item-quantity">256</span>
+                            <div class="kit-item-tooltip">Pistol Bullet</div>
+                        </div>
+                        <!-- Medical Syringe -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/syringe.medical.png" alt="Medical Syringe">
+                            <span class="kit-item-quantity">15</span>
+                            <div class="kit-item-tooltip">Medical Syringe</div>
+                        </div>
+                        <!-- Wooden Barricade Cover -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/barricade.wood.cover.png" alt="Wooden Barricade Cover">
+                            <span class="kit-item-quantity">15</span>
+                            <div class="kit-item-tooltip">Wooden Barricade Cover</div>
+                        </div>
+                        <!-- Large Medkit -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/largemedkit.png" alt="Large Medkit">
+                            <span class="kit-item-quantity">2</span>
+                            <div class="kit-item-tooltip">Large Medkit</div>
+                        </div>
+                        <!-- Coffee Can Helmet -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/coffeecan.helmet.png" alt="Coffee Can Helmet">
+                            <div class="kit-item-tooltip">Coffee Can Helmet</div>
+                        </div>
+                        <!-- Road Sign Chestplate -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/roadsign.jacket.png" alt="Road Sign Chestplate">
+                            <div class="kit-item-tooltip">Road Sign Chestplate</div>
+                        </div>
+                        <!-- Hoodie -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/hoodie.png" alt="Hoodie">
+                            <div class="kit-item-tooltip">Hoodie</div>
+                        </div>
+                        <!-- Tactical Gloves -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/tactical.gloves.png" alt="Tactical Gloves">
+                            <div class="kit-item-tooltip">Tactical Gloves</div>
+                        </div>
+                        <!-- Road Sign Kilt -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/roadsign.kilt.png" alt="Road Sign Kilt">
+                            <div class="kit-item-tooltip">Road Sign Kilt</div>
+                        </div>
+                        <!-- Pants -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/pants.png" alt="Pants">
+                            <div class="kit-item-tooltip">Pants</div>
+                        </div>
+                        <!-- Boots -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/shoes.boots.png" alt="Boots">
+                            <div class="kit-item-tooltip">Boots</div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if product.name == 'Hero' %}
+                        <!-- M39 Rifle -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/rifle.m39.png" alt="M39 Rifle">
+                            <div class="kit-item-attachments">
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.flashlight.png" alt="Weapon flashlight">
+                                </div>
+                            </div>
+                            <div class="kit-item-tooltip">M39 Rifle</div>
+                        </div>
+                        <!-- Semi Auto Rifle -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/rifle.semiauto.png" alt="Semi Automatic Rifle">
+                            <div class="kit-item-attachments">
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.flashlight.png" alt="Weapon flashlight">
+                                </div>
+                            </div>
+                            <div class="kit-item-tooltip">Semi Automatic Rifle</div>
+                        </div>
+                        <!-- 5.56 Rifle Ammo -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/ammo.rifle.png" alt="5.56 Rifle Ammo">
+                            <span class="kit-item-quantity">128</span>
+                            <div class="kit-item-tooltip">5.56 Rifle Ammo</div>
+                        </div>
+                        <!-- Pistol Bullet -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/ammo.pistol.png" alt="Pistol Bullet">
+                            <span class="kit-item-quantity">128</span>
+                            <div class="kit-item-tooltip">Pistol Bullet</div>
+                        </div>
+                        <!-- Medical Syringe -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/syringe.medical.png" alt="Medical Syringe">
+                            <span class="kit-item-quantity">10</span>
+                            <div class="kit-item-tooltip">Medical Syringe</div>
+                        </div>
+                        <!-- Wooden Barricade Cover -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/barricade.wood.cover.png" alt="Wooden Barricade Cover">
+                            <span class="kit-item-quantity">10</span>
+                            <div class="kit-item-tooltip">Wooden Barricade Cover</div>
+                        </div>
+                        <!-- Large Medkit -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/largemedkit.png" alt="Large Medkit">
+                            <span class="kit-item-quantity">2</span>
+                            <div class="kit-item-tooltip">Large Medkit</div>
+                        </div>
+                        <!-- Coffee Can Helmet -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/coffeecan.helmet.png" alt="Coffee Can Helmet">
+                            <div class="kit-item-tooltip">Coffee Can Helmet</div>
+                        </div>
+                        <!-- Jacket -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/jacket.png" alt="Jacket">
+                            <div class="kit-item-tooltip">Jacket</div>
+                        </div>
+                        <!-- Hoodie -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/hoodie.png" alt="Hoodie">
+                            <div class="kit-item-tooltip">Hoodie</div>
+                        </div>
+                        <!-- Tactical Gloves -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/tactical.gloves.png" alt="Tactical Gloves">
+                            <div class="kit-item-tooltip">Tactical Gloves</div>
+                        </div>
+                        <!-- Road Sign Kilt -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/roadsign.kilt.png" alt="Road Sign Kilt">
+                            <div class="kit-item-tooltip">Road Sign Kilt</div>
+                        </div>
+                        <!-- Pants -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/pants.png" alt="Pants">
+                            <div class="kit-item-tooltip">Pants</div>
+                        </div>
+                        <!-- Boots -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/shoes.boots.png" alt="Boots">
+                            <div class="kit-item-tooltip">Boots</div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if product.name == 'Soldier' %}
+                        <!-- Semi Automatic Rifle -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/rifle.semiauto.png" alt="Semi Automatic Rifle">
+                            <div class="kit-item-attachments">
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.flashlight.png" alt="Weapon flashlight">
+                                </div>
+                            </div>
+                            <div class="kit-item-tooltip">Semi Automatic Rifle</div>
+                        </div>
+                        <!-- 5.56 Rifle Ammo -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/ammo.rifle.png" alt="5.56 Rifle Ammo">
+                            <span class="kit-item-quantity">128</span>
+                            <div class="kit-item-tooltip">5.56 Rifle Ammo</div>
+                        </div>
+                        <!-- Medical Syringe -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/syringe.medical.png" alt="Medical Syringe">
+                            <span class="kit-item-quantity">5</span>
+                            <div class="kit-item-tooltip">Medical Syringe</div>
+                        </div>
+                        <!-- Wooden Barricade Cover -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/barricade.wood.cover.png" alt="Wooden Barricade Cover">
+                            <span class="kit-item-quantity">5</span>
+                            <div class="kit-item-tooltip">Wooden Barricade Cover</div>
+                        </div>
+                        <!-- Large Medkit -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/largemedkit.png" alt="Large Medkit">
+                            <div class="kit-item-tooltip">Large Medkit</div>
+                        </div>
+                        <!-- Hazmat Suit -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/hazmatsuit.png" alt="Hazmat Suit">
+                            <div class="kit-item-tooltip">Hazmat Suit</div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if product.name == 'Legend' %}
+                        <!-- LR-300 Assault Rifle -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/rifle.lr300.png" alt="LR-300 Assault Rifle">
+                            <div class="kit-item-attachments">
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.holosight.png" alt="Holosight">
+                                </div>
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.flashlight.png" alt="Weapon flashlight">
+                                </div>
+                            </div>
+                            <div class="kit-item-tooltip">LR-300 Assault Rifle</div>
+                        </div>
+                        <!-- MP5A4 -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/smg.mp5.png" alt="MP5A4">
+                            <div class="kit-item-attachments">
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.holosight.png" alt="Holosight">
+                                </div>
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.flashlight.png" alt="Weapon flashlight">
+                                </div>
+                            </div>
+                            <div class="kit-item-tooltip">MP5A4</div>
+                        </div>
+                        <!-- M39 Rifle -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/rifle.m39.png" alt="M39 Rifle">
+                            <div class="kit-item-attachments">
+                                <div class="kit-attachment-icon">
+                                    <img src="https://rustlabs.com/img/items180/weapon.mod.flashlight.png" alt="Weapon flashlight">
+                                </div>
+                            </div>
+                            <div class="kit-item-tooltip">M39 Rifle</div>
+                        </div>
+                        <!-- 5.56 Rifle Ammo -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/ammo.rifle.png" alt="5.56 Rifle Ammo">
+                            <span class="kit-item-quantity">256</span>
+                            <div class="kit-item-tooltip">5.56 Rifle Ammo</div>
+                        </div>
+                        <!-- Pistol Bullet -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/ammo.pistol.png" alt="Pistol Bullet">
+                            <span class="kit-item-quantity">256</span>
+                            <div class="kit-item-tooltip">Pistol Bullet</div>
+                        </div>
+                        <!-- Medical Syringe -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/syringe.medical.png" alt="Medical Syringe">
+                            <span class="kit-item-quantity">20</span>
+                            <div class="kit-item-tooltip">Medical Syringe</div>
+                        </div>
+                        <!-- Wooden Barricade Cover -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/barricade.wood.cover.png" alt="Wooden Barricade Cover">
+                            <span class="kit-item-quantity">20</span>
+                            <div class="kit-item-tooltip">Wooden Barricade Cover</div>
+                        </div>
+                        <!-- Large Medkit -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/largemedkit.png" alt="Large Medkit">
+                            <span class="kit-item-quantity">3</span>
+                            <div class="kit-item-tooltip">Large Medkit</div>
+                        </div>
+                        <!-- Metal Facemask -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.facemask.png" alt="Metal Facemask">
+                            <div class="kit-item-tooltip">Metal Facemask</div>
+                        </div>
+                        <!-- Road Sign Chestplate -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/roadsign.jacket.png" alt="Road Sign Chestplate">
+                            <div class="kit-item-tooltip">Road Sign Chestplate</div>
+                        </div>
+                        <!-- Hoodie -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/hoodie.png" alt="Hoodie">
+                            <div class="kit-item-tooltip">Hoodie</div>
+                        </div>
+                        <!-- Tactical Gloves -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/tactical.gloves.png" alt="Tactical Gloves">
+                            <div class="kit-item-tooltip">Tactical Gloves</div>
+                        </div>
+                        <!-- Road Sign Kilt -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/roadsign.kilt.png" alt="Road Sign Kilt">
+                            <div class="kit-item-tooltip">Road Sign Kilt</div>
+                        </div>
+                        <!-- Pants -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/pants.png" alt="Pants">
+                            <div class="kit-item-tooltip">Pants</div>
+                        </div>
+                        <!-- Boots -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/shoes.boots.png" alt="Boots">
+                            <div class="kit-item-tooltip">Boots</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Resources Grid (RIGHT) -->
+            <div class="kit-grid-container">
+                <h3 class="kit-grid-title">
+                    <i class="fa-solid fa-cube"></i>
+                    <span>Resources</span>
+                </h3>
+                <div class="kit-grid">
+                    {% if product.name == 'Champion' %}
+                        <!-- Scrap -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/scrap.png" alt="Scrap">
+                            <span class="kit-item-quantity">1,000</span>
+                            <div class="kit-item-tooltip">Scrap</div>
+                        </div>
+                        <!-- Low Grade Fuel -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/lowgradefuel.png" alt="Low Grade Fuel">
+                            <span class="kit-item-quantity">1,000</span>
+                            <div class="kit-item-tooltip">Low Grade Fuel</div>
+                        </div>
+                        <!-- Cloth -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/cloth.png" alt="Cloth">
+                            <span class="kit-item-quantity">1,000</span>
+                            <div class="kit-item-tooltip">Cloth</div>
+                        </div>
+                        <!-- Leather -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/leather.png" alt="Leather">
+                            <span class="kit-item-quantity">1,000</span>
+                            <div class="kit-item-tooltip">Leather</div>
+                        </div>
+                        <!-- High Quality Metal -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.refined.png" alt="High Quality Metal">
+                            <span class="kit-item-quantity">125</span>
+                            <div class="kit-item-tooltip">High Quality Metal</div>
+                        </div>
+                        <!-- Metal Fragments -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.fragments.png" alt="Metal Fragments">
+                            <span class="kit-item-quantity">5,000</span>
+                            <div class="kit-item-tooltip">Metal Fragments</div>
+                        </div>
+                        <!-- High Quality Metal Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/hq.metal.ore.png" alt="High Quality Metal Ore">
+                            <span class="kit-item-quantity">125</span>
+                            <div class="kit-item-tooltip">High Quality Metal Ore</div>
+                        </div>
+                        <!-- Sulfur Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/sulfur.ore.png" alt="Sulfur Ore">
+                            <span class="kit-item-quantity">8,000</span>
+                            <div class="kit-item-tooltip">Sulfur Ore</div>
+                        </div>
+                        <!-- Metal Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.ore.png" alt="Metal Ore">
+                            <span class="kit-item-quantity">15,000</span>
+                            <div class="kit-item-tooltip">Metal Ore</div>
+                        </div>
+                        <!-- Stones -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/stones.png" alt="Stones">
+                            <span class="kit-item-quantity">40,000</span>
+                            <div class="kit-item-tooltip">Stones</div>
+                        </div>
+                        <!-- Wood -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/wood.png" alt="Wood">
+                            <span class="kit-item-quantity">40,000</span>
+                            <div class="kit-item-tooltip">Wood</div>
+                        </div>
+                        <!-- Tech Trash -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/techparts.png" alt="Tech Trash">
+                            <span class="kit-item-quantity">12</span>
+                            <div class="kit-item-tooltip">Tech Trash</div>
+                        </div>
+                        <!-- Metal Spring -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metalspring.png" alt="Metal Spring">
+                            <span class="kit-item-quantity">20</span>
+                            <div class="kit-item-tooltip">Metal Spring</div>
+                        </div>
+                        <!-- Metal Pipe -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metalpipe.png" alt="Metal Pipe">
+                            <span class="kit-item-quantity">40</span>
+                            <div class="kit-item-tooltip">Metal Pipe</div>
+                        </div>
+                        <!-- Semi Automatic Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/semibody.png" alt="Semi Automatic Body">
+                            <span class="kit-item-quantity">8</span>
+                            <div class="kit-item-tooltip">Semi Automatic Body</div>
+                        </div>
+                        <!-- SMG Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/smgbody.png" alt="SMG Body">
+                            <span class="kit-item-quantity">8</span>
+                            <div class="kit-item-tooltip">SMG Body</div>
+                        </div>
+                        <!-- Rifle Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/riflebody.png" alt="Rifle Body">
+                            <span class="kit-item-quantity">8</span>
+                            <div class="kit-item-tooltip">Rifle Body</div>
+                        </div>
+                        <!-- Gears -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/gears.png" alt="Gears">
+                            <span class="kit-item-quantity">30</span>
+                            <div class="kit-item-tooltip">Gears</div>
+                        </div>
+                        <!-- Road Signs -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/roadsigns.png" alt="Road Signs">
+                            <span class="kit-item-quantity">40</span>
+                            <div class="kit-item-tooltip">Road Signs</div>
+                        </div>
+                        <!-- Sewing Kit -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/sewingkit.png" alt="Sewing Kit">
+                            <span class="kit-item-quantity">40</span>
+                            <div class="kit-item-tooltip">Sewing Kit</div>
+                        </div>
+                        <!-- Coffin -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/coffin.storage.png" alt="Coffin">
+                            <span class="kit-item-quantity">5</span>
+                            <div class="kit-item-tooltip">Coffin</div>
+                        </div>
+                        <!-- Supply Signal -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/supply.signal.png" alt="Supply Signal">
+                            <span class="kit-item-quantity">3</span>
+                            <div class="kit-item-tooltip">Supply Signal</div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if product.name == 'Soldier' %}
+                        <!-- Scrap -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/scrap.png" alt="Scrap">
+                            <span class="kit-item-quantity">200</span>
+                            <div class="kit-item-tooltip">Scrap</div>
+                        </div>
+                        <!-- Low Grade Fuel -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/lowgradefuel.png" alt="Low Grade Fuel">
+                            <span class="kit-item-quantity">200</span>
+                            <div class="kit-item-tooltip">Low Grade Fuel</div>
+                        </div>
+                        <!-- Cloth -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/cloth.png" alt="Cloth">
+                            <span class="kit-item-quantity">200</span>
+                            <div class="kit-item-tooltip">Cloth</div>
+                        </div>
+                        <!-- Leather -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/leather.png" alt="Leather">
+                            <span class="kit-item-quantity">200</span>
+                            <div class="kit-item-tooltip">Leather</div>
+                        </div>
+                        <!-- High Quality Metal -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.refined.png" alt="High Quality Metal">
+                            <span class="kit-item-quantity">25</span>
+                            <div class="kit-item-tooltip">High Quality Metal</div>
+                        </div>
+                        <!-- Metal Fragments -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.fragments.png" alt="Metal Fragments">
+                            <span class="kit-item-quantity">1,000</span>
+                            <div class="kit-item-tooltip">Metal Fragments</div>
+                        </div>
+                        <!-- High Quality Metal Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/hq.metal.ore.png" alt="High Quality Metal Ore">
+                            <span class="kit-item-quantity">25</span>
+                            <div class="kit-item-tooltip">High Quality Metal Ore</div>
+                        </div>
+                        <!-- Sulfur Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/sulfur.ore.png" alt="Sulfur Ore">
+                            <span class="kit-item-quantity">1,600</span>
+                            <div class="kit-item-tooltip">Sulfur Ore</div>
+                        </div>
+                        <!-- Metal Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.ore.png" alt="Metal Ore">
+                            <span class="kit-item-quantity">3,000</span>
+                            <div class="kit-item-tooltip">Metal Ore</div>
+                        </div>
+                        <!-- Stones -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/stones.png" alt="Stones">
+                            <span class="kit-item-quantity">8,000</span>
+                            <div class="kit-item-tooltip">Stones</div>
+                        </div>
+                        <!-- Wood -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/wood.png" alt="Wood">
+                            <span class="kit-item-quantity">8,000</span>
+                            <div class="kit-item-tooltip">Wood</div>
+                        </div>
+                        <!-- Metal Spring -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metalspring.png" alt="Metal Spring">
+                            <span class="kit-item-quantity">4</span>
+                            <div class="kit-item-tooltip">Metal Spring</div>
+                        </div>
+                        <!-- Metal Pipe -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metalpipe.png" alt="Metal Pipe">
+                            <span class="kit-item-quantity">8</span>
+                            <div class="kit-item-tooltip">Metal Pipe</div>
+                        </div>
+                        <!-- Semi Automatic Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/semibody.png" alt="Semi Automatic Body">
+                            <span class="kit-item-quantity">2</span>
+                            <div class="kit-item-tooltip">Semi Automatic Body</div>
+                        </div>
+                        <!-- SMG Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/smgbody.png" alt="SMG Body">
+                            <span class="kit-item-quantity">2</span>
+                            <div class="kit-item-tooltip">SMG Body</div>
+                        </div>
+                        <!-- Gears -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/gears.png" alt="Gears">
+                            <span class="kit-item-quantity">6</span>
+                            <div class="kit-item-tooltip">Gears</div>
+                        </div>
+                        <!-- Road Signs -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/roadsigns.png" alt="Road Signs">
+                            <span class="kit-item-quantity">8</span>
+                            <div class="kit-item-tooltip">Road Signs</div>
+                        </div>
+                        <!-- Sewing Kit -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/sewingkit.png" alt="Sewing Kit">
+                            <span class="kit-item-quantity">8</span>
+                            <div class="kit-item-tooltip">Sewing Kit</div>
+                        </div>
+                        <!-- Coffin -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/coffin.storage.png" alt="Coffin">
+                            <div class="kit-item-tooltip">Coffin</div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if product.name == 'Titan' %}
+                        <!-- Scrap -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/scrap.png" alt="Scrap">
+                            <span class="kit-item-quantity">600</span>
+                            <div class="kit-item-tooltip">Scrap</div>
+                        </div>
+                        <!-- Low Grade Fuel -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/lowgradefuel.png" alt="Low Grade Fuel">
+                            <span class="kit-item-quantity">600</span>
+                            <div class="kit-item-tooltip">Low Grade Fuel</div>
+                        </div>
+                        <!-- Cloth -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/cloth.png" alt="Cloth">
+                            <span class="kit-item-quantity">600</span>
+                            <div class="kit-item-tooltip">Cloth</div>
+                        </div>
+                        <!-- Leather -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/leather.png" alt="Leather">
+                            <span class="kit-item-quantity">600</span>
+                            <div class="kit-item-tooltip">Leather</div>
+                        </div>
+                        <!-- High Quality Metal -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.refined.png" alt="High Quality Metal">
+                            <span class="kit-item-quantity">75</span>
+                            <div class="kit-item-tooltip">High Quality Metal</div>
+                        </div>
+                        <!-- Metal Fragments -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.fragments.png" alt="Metal Fragments">
+                            <span class="kit-item-quantity">3,000</span>
+                            <div class="kit-item-tooltip">Metal Fragments</div>
+                        </div>
+                        <!-- High Quality Metal Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/hq.metal.ore.png" alt="High Quality Metal Ore">
+                            <span class="kit-item-quantity">75</span>
+                            <div class="kit-item-tooltip">High Quality Metal Ore</div>
+                        </div>
+                        <!-- Sulfur Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/sulfur.ore.png" alt="Sulfur Ore">
+                            <span class="kit-item-quantity">4,800</span>
+                            <div class="kit-item-tooltip">Sulfur Ore</div>
+                        </div>
+                        <!-- Metal Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.ore.png" alt="Metal Ore">
+                            <span class="kit-item-quantity">9,000</span>
+                            <div class="kit-item-tooltip">Metal Ore</div>
+                        </div>
+                        <!-- Stones -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/stones.png" alt="Stones">
+                            <span class="kit-item-quantity">24,000</span>
+                            <div class="kit-item-tooltip">Stones</div>
+                        </div>
+                        <!-- Wood -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/wood.png" alt="Wood">
+                            <span class="kit-item-quantity">24,000</span>
+                            <div class="kit-item-tooltip">Wood</div>
+                        </div>
+                        <!-- Tech Trash -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/techparts.png" alt="Tech Trash">
+                            <span class="kit-item-quantity">6</span>
+                            <div class="kit-item-tooltip">Tech Trash</div>
+                        </div>
+                        <!-- Metal Spring -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metalspring.png" alt="Metal Spring">
+                            <span class="kit-item-quantity">12</span>
+                            <div class="kit-item-tooltip">Metal Spring</div>
+                        </div>
+                        <!-- Metal Pipe -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metalpipe.png" alt="Metal Pipe">
+                            <span class="kit-item-quantity">24</span>
+                            <div class="kit-item-tooltip">Metal Pipe</div>
+                        </div>
+                        <!-- Semi Automatic Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/semibody.png" alt="Semi Automatic Body">
+                            <span class="kit-item-quantity">5</span>
+                            <div class="kit-item-tooltip">Semi Automatic Body</div>
+                        </div>
+                        <!-- SMG Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/smgbody.png" alt="SMG Body">
+                            <span class="kit-item-quantity">5</span>
+                            <div class="kit-item-tooltip">SMG Body</div>
+                        </div>
+                        <!-- Rifle Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/riflebody.png" alt="Rifle Body">
+                            <span class="kit-item-quantity">5</span>
+                            <div class="kit-item-tooltip">Rifle Body</div>
+                        </div>
+                        <!-- Gears -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/gears.png" alt="Gears">
+                            <span class="kit-item-quantity">18</span>
+                            <div class="kit-item-tooltip">Gears</div>
+                        </div>
+                        <!-- Road Signs -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/roadsigns.png" alt="Road Signs">
+                            <span class="kit-item-quantity">24</span>
+                            <div class="kit-item-tooltip">Road Signs</div>
+                        </div>
+                        <!-- Sewing Kit -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/sewingkit.png" alt="Sewing Kit">
+                            <span class="kit-item-quantity">24</span>
+                            <div class="kit-item-tooltip">Sewing Kit</div>
+                        </div>
+                        <!-- Coffin -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/coffin.storage.png" alt="Coffin">
+                            <span class="kit-item-quantity">3</span>
+                            <div class="kit-item-tooltip">Coffin</div>
+                        </div>
+                        <!-- Supply Signal -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/supply.signal.png" alt="Supply Signal">
+                            <span class="kit-item-quantity">1</span>
+                            <div class="kit-item-tooltip">Supply Signal</div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if product.name == 'Hero' %}
+                        <!-- Scrap -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/scrap.png" alt="Scrap">
+                            <span class="kit-item-quantity">400</span>
+                            <div class="kit-item-tooltip">Scrap</div>
+                        </div>
+                        <!-- Low Grade Fuel -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/lowgradefuel.png" alt="Low Grade Fuel">
+                            <span class="kit-item-quantity">400</span>
+                            <div class="kit-item-tooltip">Low Grade Fuel</div>
+                        </div>
+                        <!-- Cloth -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/cloth.png" alt="Cloth">
+                            <span class="kit-item-quantity">400</span>
+                            <div class="kit-item-tooltip">Cloth</div>
+                        </div>
+                        <!-- Leather -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/leather.png" alt="Leather">
+                            <span class="kit-item-quantity">400</span>
+                            <div class="kit-item-tooltip">Leather</div>
+                        </div>
+                        <!-- High Quality Metal -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.refined.png" alt="High Quality Metal">
+                            <span class="kit-item-quantity">50</span>
+                            <div class="kit-item-tooltip">High Quality Metal</div>
+                        </div>
+                        <!-- Metal Fragments -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.fragments.png" alt="Metal Fragments">
+                            <span class="kit-item-quantity">2,000</span>
+                            <div class="kit-item-tooltip">Metal Fragments</div>
+                        </div>
+                        <!-- High Quality Metal Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/hq.metal.ore.png" alt="High Quality Metal Ore">
+                            <span class="kit-item-quantity">50</span>
+                            <div class="kit-item-tooltip">High Quality Metal Ore</div>
+                        </div>
+                        <!-- Sulfur Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/sulfur.ore.png" alt="Sulfur Ore">
+                            <span class="kit-item-quantity">3,200</span>
+                            <div class="kit-item-tooltip">Sulfur Ore</div>
+                        </div>
+                        <!-- Metal Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.ore.png" alt="Metal Ore">
+                            <span class="kit-item-quantity">6,000</span>
+                            <div class="kit-item-tooltip">Metal Ore</div>
+                        </div>
+                        <!-- Stones -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/stones.png" alt="Stones">
+                            <span class="kit-item-quantity">16,000</span>
+                            <div class="kit-item-tooltip">Stones</div>
+                        </div>
+                        <!-- Wood -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/wood.png" alt="Wood">
+                            <span class="kit-item-quantity">16,000</span>
+                            <div class="kit-item-tooltip">Wood</div>
+                        </div>
+                        <!-- Tech Trash -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/techparts.png" alt="Tech Trash">
+                            <span class="kit-item-quantity">3</span>
+                            <div class="kit-item-tooltip">Tech Trash</div>
+                        </div>
+                        <!-- Metal Spring -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metalspring.png" alt="Metal Spring">
+                            <span class="kit-item-quantity">8</span>
+                            <div class="kit-item-tooltip">Metal Spring</div>
+                        </div>
+                        <!-- Metal Pipe -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metalpipe.png" alt="Metal Pipe">
+                            <span class="kit-item-quantity">16</span>
+                            <div class="kit-item-tooltip">Metal Pipe</div>
+                        </div>
+                        <!-- Semi Automatic Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/semibody.png" alt="Semi Automatic Body">
+                            <span class="kit-item-quantity">3</span>
+                            <div class="kit-item-tooltip">Semi Automatic Body</div>
+                        </div>
+                        <!-- SMG Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/smgbody.png" alt="SMG Body">
+                            <span class="kit-item-quantity">3</span>
+                            <div class="kit-item-tooltip">SMG Body</div>
+                        </div>
+                        <!-- Rifle Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/riflebody.png" alt="Rifle Body">
+                            <span class="kit-item-quantity">3</span>
+                            <div class="kit-item-tooltip">Rifle Body</div>
+                        </div>
+                        <!-- Gears -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/gears.png" alt="Gears">
+                            <span class="kit-item-quantity">12</span>
+                            <div class="kit-item-tooltip">Gears</div>
+                        </div>
+                        <!-- Road Signs -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/roadsigns.png" alt="Road Signs">
+                            <span class="kit-item-quantity">16</span>
+                            <div class="kit-item-tooltip">Road Signs</div>
+                        </div>
+                        <!-- Sewing Kit -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/sewingkit.png" alt="Sewing Kit">
+                            <span class="kit-item-quantity">16</span>
+                            <div class="kit-item-tooltip">Sewing Kit</div>
+                        </div>
+                        <!-- Coffin -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/coffin.storage.png" alt="Coffin">
+                            <span class="kit-item-quantity">2</span>
+                            <div class="kit-item-tooltip">Coffin</div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if product.name == 'Legend' %}
+                        <!-- Scrap -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/scrap.png" alt="Scrap">
+                            <span class="kit-item-quantity">800</span>
+                            <div class="kit-item-tooltip">Scrap</div>
+                        </div>
+                        <!-- Low Grade Fuel -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/lowgradefuel.png" alt="Low Grade Fuel">
+                            <span class="kit-item-quantity">800</span>
+                            <div class="kit-item-tooltip">Low Grade Fuel</div>
+                        </div>
+                        <!-- Cloth -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/cloth.png" alt="Cloth">
+                            <span class="kit-item-quantity">800</span>
+                            <div class="kit-item-tooltip">Cloth</div>
+                        </div>
+                        <!-- Leather -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/leather.png" alt="Leather">
+                            <span class="kit-item-quantity">800</span>
+                            <div class="kit-item-tooltip">Leather</div>
+                        </div>
+                        <!-- High Quality Metal -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.refined.png" alt="High Quality Metal">
+                            <span class="kit-item-quantity">100</span>
+                            <div class="kit-item-tooltip">High Quality Metal</div>
+                        </div>
+                        <!-- Metal Fragments -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.fragments.png" alt="Metal Fragments">
+                            <span class="kit-item-quantity">4,000</span>
+                            <div class="kit-item-tooltip">Metal Fragments</div>
+                        </div>
+                        <!-- High Quality Metal Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/hq.metal.ore.png" alt="High Quality Metal Ore">
+                            <span class="kit-item-quantity">100</span>
+                            <div class="kit-item-tooltip">High Quality Metal Ore</div>
+                        </div>
+                        <!-- Sulfur Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/sulfur.ore.png" alt="Sulfur Ore">
+                            <span class="kit-item-quantity">6,400</span>
+                            <div class="kit-item-tooltip">Sulfur Ore</div>
+                        </div>
+                        <!-- Metal Ore -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metal.ore.png" alt="Metal Ore">
+                            <span class="kit-item-quantity">12,000</span>
+                            <div class="kit-item-tooltip">Metal Ore</div>
+                        </div>
+                        <!-- Stones -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/stones.png" alt="Stones">
+                            <span class="kit-item-quantity">32,000</span>
+                            <div class="kit-item-tooltip">Stones</div>
+                        </div>
+                        <!-- Wood -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/wood.png" alt="Wood">
+                            <span class="kit-item-quantity">32,000</span>
+                            <div class="kit-item-tooltip">Wood</div>
+                        </div>
+                        <!-- Tech Trash -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/techparts.png" alt="Tech Trash">
+                            <span class="kit-item-quantity">9</span>
+                            <div class="kit-item-tooltip">Tech Trash</div>
+                        </div>
+                        <!-- Metal Spring -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metalspring.png" alt="Metal Spring">
+                            <span class="kit-item-quantity">16</span>
+                            <div class="kit-item-tooltip">Metal Spring</div>
+                        </div>
+                        <!-- Metal Pipe -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/metalpipe.png" alt="Metal Pipe">
+                            <span class="kit-item-quantity">32</span>
+                            <div class="kit-item-tooltip">Metal Pipe</div>
+                        </div>
+                        <!-- Semi Automatic Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/semibody.png" alt="Semi Automatic Body">
+                            <span class="kit-item-quantity">6</span>
+                            <div class="kit-item-tooltip">Semi Automatic Body</div>
+                        </div>
+                        <!-- SMG Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/smgbody.png" alt="SMG Body">
+                            <span class="kit-item-quantity">6</span>
+                            <div class="kit-item-tooltip">SMG Body</div>
+                        </div>
+                        <!-- Rifle Body -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/riflebody.png" alt="Rifle Body">
+                            <span class="kit-item-quantity">6</span>
+                            <div class="kit-item-tooltip">Rifle Body</div>
+                        </div>
+                        <!-- Gears -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/gears.png" alt="Gears">
+                            <span class="kit-item-quantity">24</span>
+                            <div class="kit-item-tooltip">Gears</div>
+                        </div>
+                        <!-- Road Signs -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/roadsigns.png" alt="Road Signs">
+                            <span class="kit-item-quantity">32</span>
+                            <div class="kit-item-tooltip">Road Signs</div>
+                        </div>
+                        <!-- Sewing Kit -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/sewingkit.png" alt="Sewing Kit">
+                            <span class="kit-item-quantity">32</span>
+                            <div class="kit-item-tooltip">Sewing Kit</div>
+                        </div>
+                        <!-- Coffin -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/coffin.storage.png" alt="Coffin">
+                            <span class="kit-item-quantity">4</span>
+                            <div class="kit-item-tooltip">Coffin</div>
+                        </div>
+                        <!-- Supply Signal -->
+                        <div class="kit-item">
+                            <img src="https://rustlabs.com/img/items180/supply.signal.png" alt="Supply Signal">
+                            <span class="kit-item-quantity">2</span>
+                            <div class="kit-item-tooltip">Supply Signal</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="prose !prose-zinc !prose-invert max-w-full product-description mt-4">
+        {{ product.description | raw }}
+    </div>
+</div>
+{% endblock %}

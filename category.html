@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{#
+<script nonce="MjY3MjA4MDMwNSwyMDU0ODkxMDYw">
+    // Load product to modal
+    const loadProduct = (slug) => {
+        document.getElementById('modal-content').innerHTML = "";
+        const spinner = document.getElementById(`spinner-${slug}`);
+        spinner.classList.toggle('hidden');
+
+        fetch(`/products/${slug}`)
+            .then(async response => {
+                if (!response.ok) {
+                    alert(await response.text());
+                    return;
+                }
+
+                document.getElementById('modal').classList.toggle('hidden');
+                document.getElementById('modal-content').innerHTML += await response.text();
+                spinner.classList.toggle('hidden');
+            })
+    };
+</script>#}
+
+<div class="category-page animate-fade-in text-center mb-6">
+    <h2 class="text-6xl font-black mb-3 bg-gradient-to-r from-[#7E14F7] to-[#901DFF] bg-clip-text text-transparent animate-scale-in">
+        {{ activeTag.name }}
+    </h2>
+
+    <div class="text-xl text-gray-400 max-w-3xl mx-auto animate-fade-in delay-100">
+        {{ activeTag.description|raw }}
+    </div>
+</div>
+
+<!-- RANKED KITS Section Title -->
+<div class="ir-section-title-wrapper animate-fade-in">
+    <h3 class="ir-section-title">RANKED KITS</h3>
+</div>
+
+<div class="category-packages ir-grid-5-cols">
+    {% for product in products %}
+    <a href="/products/{{ product.slug }}" class="category-package {% if product.name == "Champion" %}champion-rank{% elseif product.name == "Legend" %}legend-rank{% endif %}">
+        <!-- Product Image -->
+        <div class="category-package-img-container">
+            <div class="category-package-img flex items-center justify-center">
+                {% if product.image_url %}
+                <img class="package-img" alt="{{ product.name }}" src="{{ product.image_url }}" />
+                {% else %}
+                <i class="fa-solid fa-box-open text-[--first-color] text-9xl"></i>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Product Title -->
+        <h3 class="category-package-title">{{ product.name }}</h3>
+        
+        <!-- Product Description (if available) -->
+        {% if product.tagline %}
+        <p class="category-package-tagline">{{ product.tagline }}</p>
+        {% endif %}
+        
+        <!-- Price -->
+        <div class="category-package-price-list">
+            {% if product.pricing.active_sale %}
+            <span class="category-package-price-disc">{{ product.pricing.price_original|money }} {{ store.currency}}</span>
+            <span class="category-package-price">{{ product.price|money }} {{ store.currency }}</span>
+            {% else %}
+            <span class="category-package-price">{{ product.price|money }} {{ store.currency }}</span>
+            {% endif %}
+        </div>
+
+        <!-- Full Width Button -->
+        {% if product.stock.available_to_purchase %}
+        <div class="ir-view-btn-full">
+            <svg class="ir-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <span>VIEW</span>
+        </div>
+        {% else %}
+        <div class="ir-out-of-stock">
+            OUT OF STOCK
+        </div>
+        {% endif %}
+    </a>
+    
+    {% endfor %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div id="store-root" class="animate-fade-in">
+  <!-- Hero Section - Matching Landing Page Style -->
+  <div class="text-center mb-8 py-8">
+    <div class="inline-block mb-4">
+      <div class="relative">
+        <h1 class="text-6xl md:text-7xl font-black bg-gradient-to-r from-[#7E14F7] via-[#901DFF] to-[#7E14F7] bg-clip-text text-transparent animate-gradient font-[Rajdhani] uppercase">
+          INFINITYRUST STORE
+        </h1>
+        <div class="absolute -inset-4 bg-gradient-to-r from-[#7E14F7] to-[#901DFF] blur-3xl opacity-30 -z-10"></div>
+      </div>
+    </div>
+    <p class="text-2xl md:text-3xl text-gray-300 mb-3 font-light">
+      Premium Ranks & Packages
+    </p>
+    <p class="text-lg text-gray-400 max-w-2xl mx-auto">
+      Enhance your gameplay with exclusive kits, perks, and custom features
+    </p>
+  </div>
+</div>
+
+<!-- Game Banner -->
+<div class="ir-game-banner">
+  <img src="https://files.eugamehost.com/storage/uploads/eugamehost-rust.png" alt="Rust Game" />
+</div>
+
+<!-- FAQ Section -->
+<div class="ir-faq-section">
+  <div class="ir-faq-container">
+    <h2 class="ir-faq-title">Frequently Asked Questions</h2>
+    
+    <div class="ir-faq-list">
+      <!-- FAQ Item 1 -->
+      <div class="ir-faq-item">
+        <button class="ir-faq-question" onclick="toggleFAQ(this)">
+          <span>How do I receive my purchased rank or package?</span>
+          <svg class="ir-faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="ir-faq-answer">
+          <p>Once your purchase is complete, your rank or package will be automatically delivered to your account. Simply join any of our Rust servers and your items will be available immediately. If you don't receive your purchase within 5 minutes, please contact support with your transaction ID.</p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 2 -->
+      <div class="ir-faq-item">
+        <button class="ir-faq-question" onclick="toggleFAQ(this)">
+          <span>Can I use my rank on all InfinityRust servers?</span>
+          <svg class="ir-faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="ir-faq-answer">
+          <p>Yes! All ranks and packages are valid across every InfinityRust server. Your rank is tied to your account, so you'll have access to your benefits no matter which server you play on.</p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 3 -->
+      <div class="ir-faq-item">
+        <button class="ir-faq-question" onclick="toggleFAQ(this)">
+          <span>How do I cancel my rank subscription?</span>
+          <svg class="ir-faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="ir-faq-answer">
+          <p>To cancel your subscription, click on your profile icon in the top right corner, then navigate to <a href="https://store.infinityrust.net/account/subscriptions" target="_blank" style="color: #7E14F7; text-decoration: underline;">My Subscriptions</a>. From there, you can manage or cancel your active subscriptions at any time.</p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 4 -->
+      <div class="ir-faq-item">
+        <button class="ir-faq-question" onclick="toggleFAQ(this)">
+          <span>Can you own more than one rank?</span>
+          <svg class="ir-faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="ir-faq-answer">
+          <p>Yes! You can own multiple ranks, but you can only have one subscription of each rank type at a time. For example, you could have both a Soldier and a Champion rank active simultaneously, giving you access to both kit benefits.</p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 5 -->
+      <div class="ir-faq-item">
+        <button class="ir-faq-question" onclick="toggleFAQ(this)">
+          <span>What payment methods do you accept?</span>
+          <svg class="ir-faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="ir-faq-answer">
+          <p>We accept all major payment methods including credit/debit cards, PayPal, and various regional payment options through our secure payment processor.</p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 6 -->
+      <div class="ir-faq-item">
+        <button class="ir-faq-question" onclick="toggleFAQ(this)">
+          <span>Do ranks have a cooldown?</span>
+          <svg class="ir-faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="ir-faq-answer">
+          <p>Yes, every kit has a 36 hour cooldown. Once you claim your rank kit, you'll need to wait 36 hours before you can claim it again. Additionally, there is a 4 hour wipe block that prevents users from claiming their rank until 4 hours past force wipe.</p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 7 -->
+      <div class="ir-faq-item">
+        <button class="ir-faq-question" onclick="toggleFAQ(this)">
+          <span>Can I gift a rank to a friend?</span>
+          <svg class="ir-faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="ir-faq-answer">
+          <p>Absolutely! On the product page, click the "Gift" button and enter your friend's SteamID64. They'll receive the rank immediately upon purchase completion.</p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 9 -->
+      <div class="ir-faq-item">
+        <button class="ir-faq-question" onclick="toggleFAQ(this)">
+          <span>Do I lose my rank if I get banned?</span>
+          <svg class="ir-faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="ir-faq-answer">
+          <p>Yes, if you violate our server rules and receive a permanent ban, you will lose access to your rank and any associated benefits. We do not offer refunds for ranks lost due to rule violations. Please review our server rules to ensure you maintain your rank privileges.</p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 10 -->
+      <div class="ir-faq-item">
+        <button class="ir-faq-question" onclick="toggleFAQ(this)">
+          <span>How do I claim my kit in-game?</span>
+          <svg class="ir-faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="ir-faq-answer">
+          <p>Simply type your rank command in chat (e.g., /champion, /legend, /titan, /hero, or /soldier) and your kit will be delivered directly to your inventory. Make sure you have enough space in your inventory before claiming!</p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 11 -->
+      <div class="ir-faq-item">
+        <button class="ir-faq-question" onclick="toggleFAQ(this)">
+          <span>Are there any hidden fees or recurring charges?</span>
+          <svg class="ir-faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="ir-faq-answer">
+          <p>No hidden fees! Ranks are subscription-based and will renew automatically each billing cycle at the price shown on the product page. You can cancel at any time through your account subscriptions page, and there are no cancellation fees.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleFAQ(button) {
+  const faqItem = button.parentElement;
+  const answer = faqItem.querySelector('.ir-faq-answer');
+  const isOpen = faqItem.classList.contains('active');
+  
+  // Toggle current FAQ only (don't close others)
+  if (isOpen) {
+    faqItem.classList.remove('active');
+    answer.style.maxHeight = null;
+  } else {
+    faqItem.classList.add('active');
+    answer.style.maxHeight = answer.scrollHeight + 'px';
+  }
+}
+
+(async () => {
+  try {
+    const res = await fetch('/products' + (location.search || ''), {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    if (!res.ok) throw new Error('Failed to load products');
+    const html = await res.text();
+
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const header = doc.querySelector('.category-page');
+    const grid   = doc.querySelector('.category-packages');
+
+    const root = document.getElementById('store-root');
+    
+    // Keep the hero section, append products after
+    if (header) root.appendChild(header.cloneNode(true));
+    if (grid)   root.appendChild(grid.cloneNode(true));
+    
+  } catch (e) {
+    document.getElementById('store-root').innerHTML =
+      '<div class="text-red-400 text-xl text-center py-12">Could not load store. Please try refreshing the page.</div>';
+    console.error(e);
+  }
+})();
+</script>
+{% endblock %}

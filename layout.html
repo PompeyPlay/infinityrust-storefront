@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{ store.name }}</title>
+    <link rel="shortcut icon" href="{{ favicon }}">
+
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="og:type" content="website">
+    <meta name="og:locale" content="en_EN">
+    <meta name="og:image:width" content="1200">
+    <meta name="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="og:site_name" content="{{ store.name }}">
+    <meta name="og:title" content="{{ store.name }}">
+    <meta name="og:image:alt" content="{{ store.name }}">
+    <meta name="theme-color" content="{{ config("main-color") }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="{{ asset('style.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap" rel="stylesheet">
+    <link href="https://cdn.paynow.gg/fonts/fontawesome-6.6.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --main-color: {{ config("main-color")}};
+
+            /*- main color -*/
+            --hover-color: {{config("second-color")}};
+
+            /*- hover color-*/
+            --text-color: #A1A1AA;
+
+            --header-bg: #18181B;
+            --footer-bg: #09090B66;
+
+            --button: {{config("main-color")}};
+
+            --border-radius: 0px;
+            --bg-color: #18181B;
+            --panel-body: #18181B;
+            --border-color: #3F3F46;
+            --border: 1px solid var(--border-color);
+            --border-top: linear-gradient(0deg, #18181B, #18181B),
+            linear-gradient(180deg, rgba(39, 39, 42, 0.2) 0%, rgba(24, 24, 27, 0) 21.88%);
+            --shadow: 0px 0px 2px 0px #000000;
+
+            --first-color: #3F3F46;
+            --second-color: #27272A;
+            --input: #09090B;
+
+            --logo-height: 100px;
+            --btn-pad: 0.5rem;
+            --spacing-xs: 0.5rem;
+            --spacing-s: 1rem;
+            --spacing-m: 1.5rem;
+
+            --transition: 0.3s easy-out;
+        }
+    </style>
+
+    <script src="https://cdn.tailwindcss.com?plugins=typography" nonce="MzQzMDQ1NjQ5MSwzMjA2ODk0MDcz"></script>
+    <script src="{{ asset("script.js") }}"></script>
+</head>
+
+<body class="body">
+    <canvas id="particle-bg" class="fixed inset-0 pointer-events-none" style="z-index:0;"></canvas>
+        <!-- Header matching infinityrust.net exactly -->
+        <header class="ir-header-new">
+          <nav class="ir-nav-container">
+            <div class="ir-nav-content">
+              
+              <!-- Mobile: Hamburger Button (hidden on desktop) -->
+              <button class="ir-mobile-hamburger" aria-label="Menu" type="button">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              
+              <!-- Left: Logo & Brand -->
+              <div class="ir-brand">
+                <a href="https://infinityrust.net" class="ir-brand-link">
+                  <div class="ir-logo-img-wrapper">
+                    <img src="https://infinityrust.net/logo.png" alt="InfinityRust Logo" class="ir-logo-img" />
+                  </div>
+                  <div class="ir-brand-text">
+                    <span class="ir-brand-name">infinityrust</span><span class="ir-brand-tld">.net</span>
+                  </div>
+                </a>
+              </div>
+
+              <!-- Center: Navigation Pills -->
+              <div class="ir-nav-center">
+                <div class="ir-nav-pills">
+                  <a href="https://infinityrust.net" class="ir-nav-pill">
+                    <svg class="ir-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                      <polyline stroke-linecap="round" stroke-linejoin="round" points="9 22 9 12 15 12 15 22" />
+                    </svg>
+                    <span>Home</span>
+                  </a>
+                  
+                  <a href="/" class="ir-nav-pill {% if request.path == '/' %}ir-nav-pill-active{% endif %}">
+                    <svg class="ir-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                      <line stroke-linecap="round" stroke-linejoin="round" x1="3" y1="6" x2="21" y2="6" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M16 10a4 4 0 0 1-8 0" />
+                    </svg>
+                    <span>Store</span>
+                  </a>
+
+                  <a href="https://infinityrust.net/?page=ticket" class="ir-nav-pill">
+                    <svg class="ir-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 0 0-2 2v3a2 2 0 1 1 0 4v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3a2 2 0 1 1 0-4V7a2 2 0 0 0-2-2H5z" />
+                    </svg>
+                    <span>Create Ticket</span>
+                  </a>
+
+                  <a href="https://infinityrust.net/?page=leaderboard" class="ir-nav-pill">
+                    <svg class="ir-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                      <path d="M4 22h16" />
+                      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                    </svg>
+                    <span>Leaderboard</span>
+                  </a>
+
+                  <a href="https://infinityrust.net/?page=linking" class="ir-nav-pill">
+                    <svg class="ir-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                    </svg>
+                    <span>Linking</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Right: User Actions -->
+              <div class="ir-user-actions">
+                  {% if customer.id %}
+                    <!-- Cart Button -->
+                    <button onclick="openCartModal()" class="ir-cart-btn" title="Shopping Cart">
+                      <svg class="ir-action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      {% if cart.lines|length > 0 %}
+                        <span class="ir-cart-badge">{{ cart.lines|length }}</span>
+                      {% endif %}
+                    </button>
+
+                    <!-- User Profile Dropdown -->
+                    <div class="ir-profile-dropdown">
+                      <button onclick="toggleProfileDropdown()" class="ir-profile-btn">
+                        <img src="{{ customer.profile.avatar_url }}" alt="Profile" class="ir-profile-avatar" />
+                        <span class="ir-profile-name">{{ customer.profile.username }}</span>
+                        <svg class="ir-dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+
+                      <!-- Dropdown Menu -->
+                      <div id="profileDropdown" class="ir-dropdown-menu">
+                        <a href="https://infinityrust.net/?page=profile" class="ir-dropdown-item">
+                          <svg class="ir-dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span>Profile</span>
+                        </a>
+                        <a href="/account/subscriptions" class="ir-dropdown-item">
+                          <svg class="ir-dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span>My Subscriptions</span>
+                        </a>
+                        <div class="ir-dropdown-divider"></div>
+                        <a href="/auth/sign-out" class="ir-dropdown-item ir-dropdown-danger">
+                          <svg class="ir-dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                          </svg>
+                          <span>Logout</span>
+                        </a>
+                      </div>
+                    </div>
+                  {% else %}
+                    <a href="/auth/sign-in" class="ir-signin-btn">
+                      <span>Sign In</span>
+                      <svg class="ir-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                      </svg>
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+
+            </div>
+          </nav>
+        </header>
+
+        <!-- Mobile Sidebar Navigation -->
+        <div id="mobileSidebar" class="ir-mobile-sidebar">
+          <div class="ir-mobile-sidebar-overlay"></div>
+          <div class="ir-mobile-sidebar-content">
+            <!-- Logo at top -->
+            <div class="ir-mobile-sidebar-header">
+              <img src="https://infinityrust.net/logo.png" alt="InfinityRust" class="ir-mobile-sidebar-logo" />
+            </div>
+            
+            <!-- Navigation Links -->
+            <div class="ir-mobile-sidebar-nav">
+              <a href="https://infinityrust.net" class="ir-mobile-nav-item">
+                <svg class="ir-mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline stroke-linecap="round" stroke-linejoin="round" points="9 22 9 12 15 12 15 22" />
+                </svg>
+                <span>Home</span>
+              </a>
+              
+              <a href="/" class="ir-mobile-nav-item {% if request.path == '/' %}ir-mobile-nav-active{% endif %}">
+                <svg class="ir-mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                  <line stroke-linecap="round" stroke-linejoin="round" x1="3" y1="6" x2="21" y2="6" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 10a4 4 0 0 1-8 0" />
+                </svg>
+                <span>Store</span>
+              </a>
+              
+              <a href="https://infinityrust.net/?page=ticket" class="ir-mobile-nav-item">
+                <svg class="ir-mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 0 0-2 2v3a2 2 0 1 1 0 4v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3a2 2 0 1 1 0-4V7a2 2 0 0 0-2-2H5z" />
+                </svg>
+                <span>Create Ticket</span>
+              </a>
+              
+              <a href="https://infinityrust.net/?page=leaderboard" class="ir-mobile-nav-item">
+                <svg class="ir-mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                  <path d="M4 22h16" />
+                  <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                  <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                  <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                </svg>
+                <span>Leaderboard</span>
+              </a>
+              
+              <a href="https://infinityrust.net/?page=linking" class="ir-mobile-nav-item">
+                <svg class="ir-mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
+                <span>Linking</span>
+              </a>
+              
+              <!-- Close Button -->
+              <button class="ir-mobile-sidebar-close ir-mobile-nav-item" type="button">
+                <svg class="ir-mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Close Menu</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+    <div class="container mx-auto" style="flex: 1; display: flex; flex-direction: column;">
+
+        {% if config("banner") == "true" and (not config("banner_only_home") or request.path == "/") %}
+        <a class="{% if not config("banner_link") %}pointer-events-none{% endif %}" href="{{ config("banner_link") }}">
+            <div class="relative w-full h-[192px] mb-4 mt-3 rounded-lg">
+                <img class="object-cover w-full h-full" src="{{ config("banner_img") }}">
+                <h1 class="text-6xl font-[Rajdhani] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">{{ config("banner_text") }}</h1>
+            </div>
+        </a>
+        {% endif %}
+
+        {% set is_full_width_container = block('sidebar') is not defined and modules is empty %}
+
+        <div class="grid grid-cols-12 gap-4 mt-8">
+            <div class="flex flex-col col-span-12 lg:col-span-3 gap-7 {% if is_full_width_container %}hidden{% endif %}">
+                {# {% if config("navigation") == "Navbar" %}
+                <nav class="nav navbar">
+                    <ul class="inline-flex flex-wrap items-center h-full gap-6 tracking-wide">
+                        <li class="nav-item {% if request.path == "/" %}active{% endif %}">
+                            <a href="/">Home</a>
+                        </li>
+
+                        {% for navlink in navlinks %}
+                        <li class="nav-item {% if activeNavlink.node_id == navlink.node_id %}active{% endif %}">
+                            <div class="relative inline-block text-left">
+                                <a href="{% if navlink.children|length > 0 %}#{% else %}products?tag={{ navlink.tag_query }}{% endif %}" onclick="toggleDropdown('{{ navlink.node_id }}')">
+                                    {% if config("nav_icon") == "Show" %}
+                                    {% if config("nav_icon_type") == "Icons" %}
+                                    <div class="nav-icon">
+                                        {% if config("icon1") == "Home" %}<i class="fa-solid fa-house"></i>{% endif %}
+                                        <i class="fa-solid fa-box"></i>
+                                        <i class="fa-solid fa-cube"></i>
+                                        <i class="fa-solid fa-list"></i>
+                                        <i class="fa-solid fa-table"></i>
+                                    </div>
+                                    {% endif %}
+                                    {% if config("nav_icon_type") == "Images" %}
+                                    <span class="nav-icon"></span>
+                                    {% endif %}
+                                    {% endif %}
+                                    {{ navlink.name }}
+
+                                    {% if navlink.children|length > 0 %}
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                    {% endif %}
+                                </a>
+
+                                {% if navlink.children|length > 0 %}
+                                {% include 'menu-links.html' with {'navlink': navlink} only %}
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+                {% endif %} #}
+
+                {% if block('sidebar') is not defined %}
+                    {{ modules | raw }}
+                {% else %}
+                    {% block sidebar %}{% endblock %}
+                {% endif %}
+            </div>
+
+            {% if notification %}
+                <div id="notification-alert" class="bg-red-500 text-gray-100 shadow-xl border border-[--border-color] px-4 py-3 text-xl fixed mr-4 lg:mr-0 lg:right-24 bottom-12 animate-bounce duration-[2000ms] transition-opacity">
+                    {{ notification.message }}
+                </div>
+            {% endif %} 
+
+            <div class="{% if is_full_width_container %}lg:col-span-12{% else %}lg:col-span-9{% endif %} col-span-12">
+                <div class="">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer matching infinityrust.net -->
+    <footer class="ir-footer-new">
+      <div class="ir-footer-container">
+        <div class="ir-footer-content">
+          <!-- Left - Logo, Copyright & Main Site Links -->
+          <div class="ir-footer-left">
+            <img src="https://infinityrust.net/logo.png" alt="Infinity Rust" class="ir-footer-logo" />
+            <p class="ir-footer-copyright">
+              © {{ 'now' | date('Y') }} {{ store.name }}. All rights reserved.
+            </p>
+            <a href="https://infinityrust.net/?page=terms" class="ir-footer-link">Terms</a>
+            <a href="https://infinityrust.net/?page=privacy" class="ir-footer-link">Privacy</a>
+          </div>
+
+          <!-- Right - Paynow.gg & Legal Links -->
+          <div class="ir-footer-right">
+            <span class="ir-footer-paynow">Paynow.gg</span>
+            <a href="/legal/user-agreement" class="ir-footer-link">User Agreement</a>
+            <a href="/legal/terms-of-service" class="ir-footer-link">Terms of Service</a>
+            <a href="/legal/privacy-policy" class="ir-footer-link">Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+    (function(){
+    const canvas = document.getElementById('particle-bg');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1)); // crisp on HiDPI without overkill
+    let W = 0, H = 0;
+
+    function resize(){
+        W = window.innerWidth;
+        H = window.innerHeight;
+        canvas.style.width = W + 'px';
+        canvas.style.height = H + 'px';
+        canvas.width = Math.floor(W * DPR);
+        canvas.height = Math.floor(H * DPR);
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    }
+
+    const particles = [];
+    function initParticles(){
+        particles.length = 0;
+        const count = 80;
+        for (let i = 0; i < count; i++){
+        particles.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            size: Math.random() * 2 + 0.5,
+            sx: (Math.random() - 0.5) * 0.5,
+            sy: (Math.random() - 0.5) * 0.5,
+            op: Math.random() * 0.5 + 0.2
+        });
+        }
+    }
+
+    function draw(){
+        ctx.clearRect(0, 0, W, H);
+
+        // draw moving dots + link lines (clone of your React colors)
+        for (let i = 0; i < particles.length; i++){
+        const p = particles[i];
+        p.x += p.sx; p.y += p.sy;
+        if (p.x < 0 || p.x > W) p.sx *= -1;
+        if (p.y < 0 || p.y > H) p.sy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(126, 20, 247,' + p.op + ')';
+        ctx.fill();
+        }
+
+        // links
+        for (let i = 0; i < particles.length; i++){
+        const a = particles[i];
+        for (let j = i + 1; j < particles.length; j++){
+            const b = particles[j];
+            const dx = a.x - b.x, dy = a.y - b.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < 120){
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.lineWidth = 0.5;
+            const alpha = 0.15 * (1 - dist / 120);
+            ctx.strokeStyle = 'rgba(144, 29, 255,' + alpha + ')';
+            ctx.stroke();
+            }
+        }
+        }
+
+        requestAnimationFrame(draw);
+    }
+
+    function onResize(){
+        resize();
+        initParticles();
+    }
+
+    onResize();
+    draw();
+    window.addEventListener('resize', onResize);
+    })();
+    </script>
+    
+</body>
+
+</html>
